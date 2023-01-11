@@ -1,12 +1,24 @@
-import { useState } from 'react';
-import './App.css';
+import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import MazeCanvas from './MazeCanvas';
 import NewGame from './NewGame';
+import './App.css';
 
 function App() {
-  const [maze, setMaze] = useState(null);
   return (
     <div className="App">
-      <NewGame maze={maze} setMaze={setMaze} />
+      <BrowserRouter>
+        <Switch>
+          <Route path="/mazes/new">
+            <NewGame />
+          </Route>
+          <Route path="/mazes/:id">
+            <MazeCanvas />
+          </Route>
+          <Route path="*">
+            <h1>404 Page not found!</h1>
+          </Route>
+        </Switch>
+      </BrowserRouter>
     </div>
   );
 }
