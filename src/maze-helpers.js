@@ -1,39 +1,37 @@
-export const CELL_PADDING = 2;
-
-function ctxTranslate(cell, ctx, cellWidth, cellHeight) {
+function ctxTranslate(cell, ctx, maze) {
   ctx.save();
   ctx.translate(
-    CELL_PADDING + cell.j * cellWidth,
-    CELL_PADDING + cell.i * cellHeight
+    maze.CELL_PADDING + cell.j * maze.CELL_WIDTH,
+    maze.CELL_PADDING + cell.i * maze.CELL_HEIGHT
   );
 }
 
-function strokeCell(cell, ctx, cellWidth, cellHeight, wallsHor, wallsVer) {
-  ctxTranslate(cell, ctx, cellWidth, cellHeight);
+function strokeCell(cell, ctx, maze) {
+  ctxTranslate(cell, ctx, maze);
 
   let { i, j } = cell;
   ctx.beginPath();
   ctx.moveTo(0, 0);
 
-  if (wallsHor[i][j] === 1) {
-    ctx.lineTo(cellWidth, 0);
+  if (maze.wallsHor[i][j] === 1) {
+    ctx.lineTo(maze.CELL_WIDTH, 0);
   } else {
-    ctx.moveTo(cellWidth, 0);
+    ctx.moveTo(maze.CELL_WIDTH, 0);
   }
 
-  if (wallsVer[i][j + 1] === 1) {
-    ctx.lineTo(cellWidth, cellHeight);
+  if (maze.wallsVer[i][j + 1] === 1) {
+    ctx.lineTo(maze.CELL_WIDTH, maze.CELL_HEIGHT);
   } else {
-    ctx.moveTo(cellWidth, cellHeight);
+    ctx.moveTo(maze.CELL_WIDTH, maze.CELL_HEIGHT);
   }
 
-  if (wallsHor[i + 1][j] === 1) {
-    ctx.lineTo(0, cellHeight);
+  if (maze.wallsHor[i + 1][j] === 1) {
+    ctx.lineTo(0, maze.CELL_HEIGHT);
   } else {
-    ctx.moveTo(0, cellHeight);
+    ctx.moveTo(0, maze.CELL_HEIGHT);
   }
 
-  if (wallsVer[i][j] === 1) {
+  if (maze.wallsVer[i][j] === 1) {
     ctx.lineTo(0, 0);
   } else {
     ctx.moveTo(0, 0);
@@ -43,8 +41,8 @@ function strokeCell(cell, ctx, cellWidth, cellHeight, wallsHor, wallsVer) {
   ctx.restore();
 }
 
-export function strokeMaze(maze, ctx, cellWidth, cellHeight) {
+export function strokeMaze(maze, ctx) {
   maze.allCells.forEach((cell) => {
-    strokeCell(cell, ctx, cellWidth, cellHeight, maze.wallsHor, maze.wallsVer);
+    strokeCell(cell, ctx, maze);
   });
 }
