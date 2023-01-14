@@ -140,15 +140,13 @@ function MazeCanvas() {
 
     socketRef.current = io('ws://localhost:8889');
 
-    const storedPlayerId = localStorage.getItem(`maze-${params.id}-player`);
+    const storedPlayerId = localStorage.getItem(`maze-${params.id}-player-id`);
 
     if (storedPlayerId) {
       socketRef.current.emit('board-state-update-request', params.id);
       playerIdRef.current = storedPlayerId;
     } else {
-      socketRef.current.emit('add-player', {
-        mazeId: params.id,
-      });
+      socketRef.current.emit('add-player', params.id);
     }
 
     socketRef.current.on(
@@ -156,6 +154,7 @@ function MazeCanvas() {
       ({ currentPlayerId, playersList, JSONmaze }) => {
         if (!storedPlayerId) {
           playerIdRef.current = currentPlayerId;
+          localStorage.setItem(`maze-${params.id}-player-id`, currentPlayerId);
         }
         mazeRef.current = JSON.parse(JSONmaze);
         playersListRef.current = playersList;
