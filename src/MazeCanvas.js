@@ -163,6 +163,7 @@ function MazeCanvas() {
     wsConnectionStateRef.current = true;
 
     socketRef.current = io('ws://localhost:8889');
+    socketRef.current.emit('join', mazeId);
 
     const storedPlayerId = localStorage.getItem(`maze-${mazeId}-player-id`);
 
