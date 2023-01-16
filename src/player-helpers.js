@@ -1,8 +1,10 @@
 export function paintPlayer(playerPosition, playerColor, ctx) {
+  ctx.beginPath();
   ctx.moveTo(playerPosition[0], playerPosition[1]);
   ctx.fillStyle = playerColor;
   ctx.arc(playerPosition[0], playerPosition[1], 5, 0, Math.PI * 2);
   ctx.fill();
+  ctx.closePath();
 }
 
 export function moveRight(
