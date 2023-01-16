@@ -11,15 +11,19 @@ import { strokeMaze } from './maze-helpers';
 import { io } from 'socket.io-client';
 
 function MazeCanvas() {
+  const currentPlayerLastPositionRef = useRef(null);
   const wsConnectionStateRef = useRef(false);
-  const playersListRef = useRef(null);
+  const paintSinglePlayerRef = useRef(true);
   const cellHeightRef = useRef(null);
   const cellWidthRef = useRef(null);
+  const playersListRef = useRef([]);
   const playerIdRef = useRef(null);
   const contextRef = useRef(null);
   const canvasRef = useRef(null);
   const socketRef = useRef(null);
   const mazeRef = useRef(null);
+
+  const { id: mazeId } = useParams();
 
   const getCurrentPlayerObject = useCallback(() => {
     const id = Object.keys(playersListRef.current).find(
@@ -65,6 +69,15 @@ function MazeCanvas() {
 
   const handleKeydown = useCallback(
     (e) => {
+      if (
+        e.key !== 'ArrowUp' &&
+        e.key !== 'ArrowDown' &&
+        e.key !== 'ArrowLeft' &&
+        e.key !== 'ArrowRight'
+      ) {
+        return;
+      }
+
       const currentPlayerObject = getCurrentPlayerObject();
 
       switch (e.key) {
@@ -106,14 +119,27 @@ function MazeCanvas() {
           break;
       }
 
-      paintPlayersAndMaze();
+      currentPlayerLastPositionRef.current = currentPlayerObject.lastPosition;
+      localStorage.setItem(
+        `maze-${mazeId}-player-position`,
+        JSON.stringify(currentPlayerLastPositionRef.current)
+      );
+
+      if (paintSinglePlayerRef.current) {
+        paintMaze();
+        paintPlayer(
+          currentPlayerObject.lastPosition,
+          currentPlayerObject.color,
+          contextRef.current
+        );
+      } else paintPlayersAndMaze();
 
       socketRef.current.emit('request-update-player-postion', {
         newPosition: currentPlayerObject.lastPosition,
         playerId: playerIdRef.current,
       });
     },
-    [getCurrentPlayerObject, paintPlayersAndMaze]
+    [getCurrentPlayerObject, paintPlayersAndMaze, mazeId]
   );
 
   const setupCanvas = useCallback(() => {
@@ -129,10 +155,8 @@ function MazeCanvas() {
     cellHeightRef.current = (CANVAS_SIZE - 2 * CELL_PADDING) / N_ROWS;
   }, []);
 
-  const params = useParams();
-
   useEffect(() => {
-    if (wsConnectionStateRef.current || !params.id || !canvasRef.current) {
+    if (wsConnectionStateRef.current || !mazeId || !canvasRef.current) {
       return;
     }
 
@@ -140,44 +164,65 @@ function MazeCanvas() {
 
     socketRef.current = io('ws://localhost:8889');
 
-    const storedPlayerId = localStorage.getItem(`maze-${params.id}-player-id`);
+    const storedPlayerId = localStorage.getItem(`maze-${mazeId}-player-id`);
 
     if (storedPlayerId) {
-      socketRef.current.emit('board-state-update-request', params.id);
       playerIdRef.current = storedPlayerId;
+      socketRef.current.emit('board-state-update-request', {
+        playerId: playerIdRef.current,
+        mazeId,
+      });
     } else {
-      socketRef.current.emit('add-player', params.id);
+      socketRef.current.emit('add-player', mazeId);
     }
 
     socketRef.current.on(
       'players-state-transmition',
-      ({ currentPlayerId, playersList, JSONmaze }) => {
+      ({ playerId, JSONmaze, playerObject }) => {
+        currentPlayerLastPositionRef.current = playerObject.lastPosition;
+
         if (!storedPlayerId) {
-          playerIdRef.current = currentPlayerId;
-          localStorage.setItem(`maze-${params.id}-player-id`, currentPlayerId);
+          currentPlayerLastPositionRef.current = playerObject.lastPosition;
+          localStorage.setItem(`maze-${mazeId}-player-id`, playerId);
+          playerIdRef.current = playerId;
+        } else {
+          currentPlayerLastPositionRef.current = JSON.parse(
+            localStorage.getItem(`maze-${mazeId}-player-position`)
+          );
         }
+
         mazeRef.current = JSON.parse(JSONmaze);
-        playersListRef.current = playersList;
         setupCanvas();
-        paintPlayersAndMaze();
       }
     );
 
     socketRef.current.on('update-board-state', (newPlayersList) => {
       playersListRef.current = newPlayersList;
-      paintPlayersAndMaze();
+      const currentPlayer = playersListRef.current[playerIdRef.current];
+      currentPlayer.lastPosition = currentPlayerLastPositionRef.current;
+      paintMaze();
+      paintPlayer(
+        currentPlayer.lastPosition,
+        currentPlayer.color,
+        contextRef.current
+      );
     });
 
     socketRef.current.on(
       'update-player-position',
       ({ playerId, newPosition }) => {
-        playersListRef.current[playerId].lastPosition = newPosition;
-        paintPlayersAndMaze();
+        if (playerId !== playerIdRef.current) {
+          paintSinglePlayerRef.current = false;
+          playersListRef.current[playerId].lastPosition = newPosition;
+          paintPlayersAndMaze();
+        }
       }
     );
 
     window.addEventListener('keydown', handleKeydown);
-  }, [params, paintMaze, handleKeydown, paintPlayersAndMaze, setupCanvas]);
+  }, [mazeId, paintMaze, handleKeydown, paintPlayersAndMaze, setupCanvas]);
+
   return <canvas ref={canvasRef}></canvas>;
 }
+
 export default MazeCanvas;
