@@ -1,8 +1,9 @@
-export function paintPlayer(playerPosition, playerColor, ctx) {
+export function paintPlayer(player, ctx) {
+  if (!player.active) return;
   ctx.beginPath();
-  ctx.moveTo(playerPosition[0], playerPosition[1]);
-  ctx.fillStyle = playerColor;
-  ctx.arc(playerPosition[0], playerPosition[1], 5, 0, Math.PI * 2);
+  ctx.moveTo(player.lastPosition[0], player.lastPosition[1]);
+  ctx.fillStyle = player.color;
+  ctx.arc(player.lastPosition[0], player.lastPosition[1], 5, 0, Math.PI * 2);
   ctx.fill();
   ctx.closePath();
 }

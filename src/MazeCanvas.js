@@ -11,12 +11,12 @@ import { strokeMaze } from './maze-helpers';
 import { io } from 'socket.io-client';
 
 function MazeCanvas() {
-  const currentPlayerLastPositionRef = useRef(null);
+  const currentPlayerLastPositionRef = useRef([]);
   const wsConnectionStateRef = useRef(false);
   const paintSinglePlayerRef = useRef(true);
   const cellHeightRef = useRef(null);
   const cellWidthRef = useRef(null);
-  const playersListRef = useRef([]);
+  const playersListRef = useRef({});
   const playerIdRef = useRef(null);
   const contextRef = useRef(null);
   const canvasRef = useRef(null);
@@ -53,16 +53,11 @@ function MazeCanvas() {
   const paintPlayers = useCallback(() => {
     if (!playersListRef.current) return;
     Object.values(playersListRef.current).forEach((p) => {
-      paintPlayer(p.lastPosition, p.color, contextRef.current);
+      paintPlayer(p, contextRef.current);
     });
   }, []);
 
   const paintPlayersAndMaze = useCallback(() => {
-    // ===
-    /* console.log(playersListRef.current);
-    console.log(mazeRef.current);
-    console.log(playerIdRef.current); */
-    // ===
     paintMaze();
     paintPlayers();
   }, [paintMaze, paintPlayers]);
@@ -127,11 +122,7 @@ function MazeCanvas() {
 
       if (paintSinglePlayerRef.current) {
         paintMaze();
-        paintPlayer(
-          currentPlayerObject.lastPosition,
-          currentPlayerObject.color,
-          contextRef.current
-        );
+        paintPlayer(currentPlayerObject, contextRef.current);
       } else paintPlayersAndMaze();
 
       socketRef.current.emit('request-update-player-postion', {
@@ -139,7 +130,7 @@ function MazeCanvas() {
         playerId: playerIdRef.current,
       });
     },
-    [getCurrentPlayerObject, paintPlayersAndMaze, mazeId]
+    [getCurrentPlayerObject, paintPlayersAndMaze, mazeId, paintMaze]
   );
 
   const setupCanvas = useCallback(() => {
@@ -202,11 +193,7 @@ function MazeCanvas() {
       const currentPlayer = playersListRef.current[playerIdRef.current];
       currentPlayer.lastPosition = currentPlayerLastPositionRef.current;
       paintMaze();
-      paintPlayer(
-        currentPlayer.lastPosition,
-        currentPlayer.color,
-        contextRef.current
-      );
+      paintPlayer(currentPlayer, contextRef.current);
     });
 
     socketRef.current.on(
@@ -219,6 +206,11 @@ function MazeCanvas() {
         }
       }
     );
+
+    socketRef.current.on('remove-disconnected-player', (playerId) => {
+      delete playersListRef.current[playerId];
+      paintPlayersAndMaze();
+    });
 
     window.addEventListener('keydown', handleKeydown);
   }, [mazeId, paintMaze, handleKeydown, paintPlayersAndMaze, setupCanvas]);
