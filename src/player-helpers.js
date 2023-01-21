@@ -3,7 +3,13 @@ function paintPlayer(player, ctx) {
   ctx.beginPath();
   ctx.moveTo(player.lastPosition[0], player.lastPosition[1]);
   ctx.fillStyle = player.color;
-  ctx.arc(player.lastPosition[0], player.lastPosition[1], 4, 0, Math.PI * 2);
+  ctx.arc(
+    player.lastPosition[0],
+    player.lastPosition[1] + 2,
+    4,
+    0,
+    Math.PI * 2
+  );
   ctx.fill();
   ctx.closePath();
 }
