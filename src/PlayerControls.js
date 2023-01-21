@@ -6,7 +6,7 @@ import {
 } from 'react-icons/bi';
 import './Button.css';
 
-function PlayerControls() {
+function PlayerControls({ handlePositionUpdateGenerator }) {
   return (
     <footer style={{ width: '100%' }}>
       <section
@@ -16,7 +16,7 @@ function PlayerControls() {
           justifyContent: 'center',
         }}
       >
-        <span className="btn">
+        <span className="btn" onClick={handlePositionUpdateGenerator('left')}>
           <BiLeftArrow />
         </span>
         <section
@@ -25,14 +25,14 @@ function PlayerControls() {
             flexDirection: 'column',
           }}
         >
-          <span className="btn">
+          <span className="btn" onClick={handlePositionUpdateGenerator('up')}>
             <BiUpArrow />
           </span>
-          <span className="btn">
+          <span className="btn" onClick={handlePositionUpdateGenerator('down')}>
             <BiDownArrow />
           </span>
         </section>
-        <span className="btn">
+        <span className="btn" onClick={handlePositionUpdateGenerator('right')}>
           <BiRightArrow />
         </span>
       </section>

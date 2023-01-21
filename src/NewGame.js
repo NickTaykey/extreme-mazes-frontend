@@ -14,9 +14,22 @@ function NewGame() {
   };
 
   return (
-    <button onClick={handleClick} className="btn">
-      GENERATE NEW MAZE!
-    </button>
+    <main style={{ height: '80vh', alignItems: 'center', display: 'flex' }}>
+      <button
+        onClick={handleClick}
+        className="btn"
+        style={{
+          margin: '0 auto',
+          padding: '15px',
+          width: '90%',
+          fontSize: '1rem',
+          letterSpacing: '1.5px',
+          lineHeight: '1.25',
+        }}
+      >
+        GENERATE NEW MAZE!
+      </button>
+    </main>
   );
 }
 export default NewGame;

@@ -69,21 +69,16 @@ function MazeCanvas() {
     paintPlayers();
   }, [paintMaze, paintPlayers]);
 
-  const handleKeydown = useCallback(
-    (e) => {
-      if (
-        e.key !== 'ArrowUp' &&
-        e.key !== 'ArrowDown' &&
-        e.key !== 'ArrowLeft' &&
-        e.key !== 'ArrowRight'
-      ) {
+  const handlePositionUpdate = useCallback(
+    (key) => {
+      if (key !== 'up' && key !== 'down' && key !== 'left' && key !== 'right') {
         return;
       }
 
       const currentPlayerObject = getCurrentPlayerObject();
 
-      switch (e.key) {
-        case 'ArrowUp':
+      switch (key) {
+        case 'up':
           ph.moveUp(
             currentPlayerObject.lastPosition,
             mazeRef.current,
@@ -91,7 +86,7 @@ function MazeCanvas() {
             cellHeightRef.current
           );
           break;
-        case 'ArrowDown':
+        case 'down':
           ph.moveDown(
             currentPlayerObject.lastPosition,
             mazeRef.current,
@@ -100,7 +95,7 @@ function MazeCanvas() {
             canvasRef.current.height
           );
           break;
-        case 'ArrowLeft':
+        case 'left':
           ph.moveLeft(
             currentPlayerObject.lastPosition,
             mazeRef.current,
@@ -108,7 +103,7 @@ function MazeCanvas() {
             cellHeightRef.current
           );
           break;
-        case 'ArrowRight':
+        case 'right':
           ph.moveRight(
             currentPlayerObject.lastPosition,
             mazeRef.current,
@@ -138,6 +133,13 @@ function MazeCanvas() {
       });
     },
     [getCurrentPlayerObject, paintPlayersAndMaze, mazeId, paintMaze]
+  );
+
+  const handlePositionUpdateGenerator = useCallback(
+    (direction) => {
+      return () => handlePositionUpdate(direction);
+    },
+    [handlePositionUpdate]
   );
 
   const setupCanvas = useCallback(() => {
@@ -218,14 +220,14 @@ function MazeCanvas() {
       delete playersListRef.current[playerId];
       paintPlayersAndMaze();
     });
-
-    window.addEventListener('keydown', handleKeydown);
-  }, [mazeId, paintMaze, handleKeydown, paintPlayersAndMaze, setupCanvas]);
+  }, [mazeId, paintMaze, paintPlayersAndMaze, setupCanvas]);
 
   return (
     <>
       <canvas ref={canvasRef}></canvas>
-      <PlayerControls />
+      <PlayerControls
+        handlePositionUpdateGenerator={handlePositionUpdateGenerator}
+      />
     </>
   );
 }
