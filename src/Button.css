@@ -1,0 +1,25 @@
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Press Start 2p';
+  font-size: 30pt;
+  text-align: center;
+  margin: 5px;
+  font-weight: bold;
+  background-color: lightgray;
+  text-shadow: -1px -1px black, 1px 1px white;
+  color: gray;
+  -webkit-border-radius: 7px;
+  -moz-border-radius: 7px;
+  -o-border-radius: 7px;
+  border-radius: 7px;
+  box-shadow: 0 0.2em gray;
+  cursor: pointer;
+  min-width: 30vw;
+}
+.btn:active {
+  box-shadow: none;
+  position: relative;
+  top: 0.2em;
+}

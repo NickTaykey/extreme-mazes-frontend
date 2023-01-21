@@ -1,14 +1,10 @@
-import {
-  moveRight,
-  moveLeft,
-  moveUp,
-  moveDown,
-  paintPlayer,
-} from './player-helpers';
 import { useCallback, useEffect, useRef } from 'react';
+import PlayerControls from './PlayerControls';
 import { useParams } from 'react-router-dom';
 import { strokeMaze } from './maze-helpers';
+import * as ph from './player-helpers';
 import { io } from 'socket.io-client';
+import './Button.css';
 
 function MazeCanvas() {
   const currentPlayerLastPositionRef = useRef([]);
@@ -42,6 +38,17 @@ function MazeCanvas() {
       canvasRef.current.height
     );
 
+    contextRef.current.beginPath();
+    contextRef.current.fillStyle = 'white';
+    contextRef.current.fillRect(
+      0,
+      0,
+      canvasRef.current.width,
+      canvasRef.current.height
+    );
+    contextRef.current.fill();
+    contextRef.current.closePath();
+
     strokeMaze(
       mazeRef.current,
       contextRef.current,
@@ -53,7 +60,7 @@ function MazeCanvas() {
   const paintPlayers = useCallback(() => {
     if (!playersListRef.current) return;
     Object.values(playersListRef.current).forEach((p) => {
-      paintPlayer(p, contextRef.current);
+      ph.paintPlayer(p, contextRef.current);
     });
   }, []);
 
@@ -77,7 +84,7 @@ function MazeCanvas() {
 
       switch (e.key) {
         case 'ArrowUp':
-          moveUp(
+          ph.moveUp(
             currentPlayerObject.lastPosition,
             mazeRef.current,
             cellWidthRef.current,
@@ -85,7 +92,7 @@ function MazeCanvas() {
           );
           break;
         case 'ArrowDown':
-          moveDown(
+          ph.moveDown(
             currentPlayerObject.lastPosition,
             mazeRef.current,
             cellWidthRef.current,
@@ -94,7 +101,7 @@ function MazeCanvas() {
           );
           break;
         case 'ArrowLeft':
-          moveLeft(
+          ph.moveLeft(
             currentPlayerObject.lastPosition,
             mazeRef.current,
             cellWidthRef.current,
@@ -102,7 +109,7 @@ function MazeCanvas() {
           );
           break;
         case 'ArrowRight':
-          moveRight(
+          ph.moveRight(
             currentPlayerObject.lastPosition,
             mazeRef.current,
             cellWidthRef.current,
@@ -122,7 +129,7 @@ function MazeCanvas() {
 
       if (paintSinglePlayerRef.current) {
         paintMaze();
-        paintPlayer(currentPlayerObject, contextRef.current);
+        ph.paintPlayer(currentPlayerObject, contextRef.current);
       } else paintPlayersAndMaze();
 
       socketRef.current.emit('request-update-player-postion', {
@@ -193,7 +200,7 @@ function MazeCanvas() {
       const currentPlayer = playersListRef.current[playerIdRef.current];
       currentPlayer.lastPosition = currentPlayerLastPositionRef.current;
       paintMaze();
-      paintPlayer(currentPlayer, contextRef.current);
+      ph.paintPlayer(currentPlayer, contextRef.current);
     });
 
     socketRef.current.on(
@@ -215,7 +222,12 @@ function MazeCanvas() {
     window.addEventListener('keydown', handleKeydown);
   }, [mazeId, paintMaze, handleKeydown, paintPlayersAndMaze, setupCanvas]);
 
-  return <canvas ref={canvasRef}></canvas>;
+  return (
+    <>
+      <canvas ref={canvasRef}></canvas>
+      <PlayerControls />
+    </>
+  );
 }
 
 export default MazeCanvas;

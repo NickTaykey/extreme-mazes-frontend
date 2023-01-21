@@ -6,6 +6,7 @@ import './App.css';
 function App() {
   return (
     <div className="App">
+      <h1>Extreme Mazes</h1>
       <BrowserRouter>
         <Switch>
           <Route path="/mazes/new">

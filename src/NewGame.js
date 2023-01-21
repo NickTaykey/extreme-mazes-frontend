@@ -1,4 +1,5 @@
 import { useHistory } from 'react-router-dom';
+import './Button.css';
 
 const API_URL = 'http://localhost:8888';
 
@@ -12,6 +13,10 @@ function NewGame() {
     history.replace(`/mazes/${maze.id}`);
   };
 
-  return <button onClick={handleClick}>GENERATE NEW MAZE!</button>;
+  return (
+    <button onClick={handleClick} className="btn">
+      GENERATE NEW MAZE!
+    </button>
+  );
 }
 export default NewGame;

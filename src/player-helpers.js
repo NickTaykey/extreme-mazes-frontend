@@ -1,20 +1,14 @@
-export function paintPlayer(player, ctx) {
+function paintPlayer(player, ctx) {
   if (!player.active) return;
   ctx.beginPath();
   ctx.moveTo(player.lastPosition[0], player.lastPosition[1]);
   ctx.fillStyle = player.color;
-  ctx.arc(player.lastPosition[0], player.lastPosition[1], 5, 0, Math.PI * 2);
+  ctx.arc(player.lastPosition[0], player.lastPosition[1], 4, 0, Math.PI * 2);
   ctx.fill();
   ctx.closePath();
 }
 
-export function moveRight(
-  playerPosition,
-  maze,
-  cellWidth,
-  cellHeight,
-  canvasWidth
-) {
+function moveRight(playerPosition, maze, cellWidth, cellHeight, canvasWidth) {
   if (playerPosition[0] + cellWidth >= canvasWidth) return false;
 
   const row = Math.ceil(playerPosition[1] / cellHeight) - 1;
@@ -26,7 +20,7 @@ export function moveRight(
   return true;
 }
 
-export function moveLeft(playerPosition, maze, cellWidth, cellHeight) {
+function moveLeft(playerPosition, maze, cellWidth, cellHeight) {
   if (playerPosition[0] - cellWidth <= 0) return false;
 
   const row = Math.ceil(playerPosition[1] / cellHeight) - 1;
@@ -38,7 +32,7 @@ export function moveLeft(playerPosition, maze, cellWidth, cellHeight) {
   return true;
 }
 
-export function moveUp(playerPosition, maze, cellWidth, cellHeight) {
+function moveUp(playerPosition, maze, cellWidth, cellHeight) {
   if (playerPosition[1] - cellHeight <= 0) return false;
 
   const row = Math.ceil(playerPosition[1] / cellHeight) - 1;
@@ -50,13 +44,7 @@ export function moveUp(playerPosition, maze, cellWidth, cellHeight) {
   return true;
 }
 
-export function moveDown(
-  playerPosition,
-  maze,
-  cellWidth,
-  cellHeight,
-  canvasHeight
-) {
+function moveDown(playerPosition, maze, cellWidth, cellHeight, canvasHeight) {
   if (playerPosition[1] + cellHeight >= canvasHeight) return false;
 
   const newRow = Math.ceil(playerPosition[1] / cellHeight);
@@ -67,3 +55,5 @@ export function moveDown(
   playerPosition[1] += cellHeight;
   return true;
 }
+
+export { paintPlayer, moveRight, moveLeft, moveUp, moveDown };
